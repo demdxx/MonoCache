@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoCache", "MonoCache\MonoCache.csproj", "{B9962AB2-D12B-4AF7-BEF9-7D0600647DBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoCache.IOS", "MonoCache.IOS\MonoCache.IOS.csproj", "{8B5DDAAD-912F-4B03-9BF9-D1334A5E8613}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8B5DDAAD-912F-4B03-9BF9-D1334A5E8613}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B5DDAAD-912F-4B03-9BF9-D1334A5E8613}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B5DDAAD-912F-4B03-9BF9-D1334A5E8613}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B5DDAAD-912F-4B03-9BF9-D1334A5E8613}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9962AB2-D12B-4AF7-BEF9-7D0600647DBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9962AB2-D12B-4AF7-BEF9-7D0600647DBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9962AB2-D12B-4AF7-BEF9-7D0600647DBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9962AB2-D12B-4AF7-BEF9-7D0600647DBA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = MonoCache\MonoCache.csproj
+	EndGlobalSection
+EndGlobal
