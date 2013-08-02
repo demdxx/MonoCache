@@ -1,5 +1,5 @@
 /**
- * IOSCacheManager.cs
+ * AndroidCacheManager.cs
  * 
  * @author Dmitry Ponomarev <demdxx@gmail.com>
  * @license MIT Copyright (c) 2013 demdxx. All rights reserved.
@@ -26,30 +26,37 @@
  * SOFTWARE.
  */
 using System;
+using Android.Content;
 using System.IO;
 
-namespace MonoCache.IOS
+namespace MonoCache.Android
 {
-  public class IOSCacheManager : CacheManager
+  public class AndroidCacheManager : CacheManager
   {
+    private Context ApplicationContext;
+
     /**
      * Instnace property of manager
      */
-    public static IOSCacheManager Instance {
+    public static AndroidCacheManager Instance {
       get {
-        if (null == _Instance) {
-          _Instance = new IOSCacheManager ();
-        }
-        return _Instance as IOSCacheManager;
+        return _Instance as AndroidCacheManager;
       }
     }
 
     /**
      * Constructor
      */
-    public IOSCacheManager () : base ()
+    public AndroidCacheManager (Context context) : base ()
     {
-      // ...
+      ApplicationContext = context;
+    }
+
+    public static void Init (Context context)
+    {
+      if (null == _Instance) {
+        _Instance = new AndroidCacheManager (context);
+      }
     }
 
     /**
@@ -60,8 +67,7 @@ namespace MonoCache.IOS
     public override void InitGlobalCache (string basePath=null, long lifeTime = 1000 * 60 * 60 * 24 * 3)
     {
       if (string.IsNullOrEmpty (basePath)) {
-        var documents = Environment.GetFolderPath (Environment.SpecialFolder.MyDocuments);
-        basePath = Path.Combine (documents, "..", "Library", "Caches/g.cache");
+        basePath = ApplicationContext.CacheDir.AbsolutePath;
       }
       base.InitGlobalCache (basePath, lifeTime);
     }

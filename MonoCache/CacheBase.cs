@@ -60,6 +60,14 @@ namespace MonoCache
     public abstract bool Set(string key, object value, bool rewrite = false, bool checkExpired = true);
 
     /**
+     * If object cached
+     * @param key
+     * @param checkExpired Check the end of the lifetime of
+     * @return success status
+     */
+    public abstract bool Check(string key, bool checkExpired = true);
+
+    /**
      * Get object by key
      * @param key
      * @param checkExpired Check the end of the lifetime of
@@ -104,7 +112,7 @@ namespace MonoCache
     /**
      * Clear expired files
      */
-    public void ClearExpired ()
+    public virtual void ClearExpired()
     {
       string[] list = ExpiredListOfKeys ();
       if (null != list && list.Length > 0) {
@@ -117,7 +125,7 @@ namespace MonoCache
     /**
      * Clear cache
      */
-    public void Clear ()
+    public virtual void Clear()
     {
       string[] list = ListOfKeys ();
       if (null != list && list.Length > 0) {
@@ -129,7 +137,7 @@ namespace MonoCache
 
     #region Helpers
 
-    protected bool IsExpired (DateTime time, long lifeTime = 0)
+    protected bool IsExpired(DateTime time, long lifeTime = 0)
     {
       if (lifeTime < 1) {
         lifeTime = LifeTime;
@@ -140,13 +148,13 @@ namespace MonoCache
       return lifeTime < (long)((DateTime.UtcNow - time).TotalMilliseconds * 1000);
     }
 
-    protected string StringToMD5 (string str)
+    protected string StringToMD5(string str)
     {
       byte[] input = ASCIIEncoding.ASCII.GetBytes (str);
       byte[] output = MD5.Create ().ComputeHash (input);
       StringBuilder sb = new StringBuilder();
       for(int i=0;i<output.Length;i++) {
-        sb.Append(output[i].ToString("X2"));
+        sb.Append(output[i].ToString("x2"));
       }
       return sb.ToString();
     }

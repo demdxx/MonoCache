@@ -116,6 +116,25 @@ namespace MonoCache
     }
 
     /**
+     * If object cached
+     * @param key
+     * @param checkExpired Check the end of the lifetime of
+     * @return success status
+     */
+    public override bool Check(string key, bool checkExpired = true)
+    {
+      string filePath = FilePath (key);
+      if (!File.Exists (filePath)) {
+        return false;
+      }
+      if (checkExpired && IsExpired (File.GetLastWriteTimeUtc (filePath))) {
+        File.Delete (filePath);
+        return false;
+      }
+      return true;
+    }
+
+    /**
      * Get object by key
      * @param key
      * @param checkExpired Check the end of the lifetime of

@@ -44,6 +44,14 @@ namespace MonoCache
     bool Set(string key, object value, bool rewrite = false, bool checkExpired = true);
 
     /**
+     * If object cached
+     * @param key
+     * @param checkExpired Check the end of the lifetime of
+     * @return success status
+     */
+    bool Check(string key, bool checkExpired = true);
+
+    /**
      * Get object by key
      * @param key
      * @param checkExpired Check the end of the lifetime of
@@ -63,5 +71,15 @@ namespace MonoCache
      * @return object
      */
     object this [string key] { get; }
+
+    /**
+     * Clear expired files
+     */
+    void ClearExpired();
+
+    /**
+     * Clear cache
+     */
+    void Clear();
   }
 }
