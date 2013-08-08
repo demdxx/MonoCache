@@ -6,6 +6,8 @@ PCL library for caching data. The project is written in Mono environment and is 
 Exxample
 ========
 
+### MonoCache
+
 ```CS
 
 CacheManager.InitGlobalCache (dir, 1000 * 60 * 60 * 24 * 7);
@@ -23,5 +25,17 @@ var obj = CacheManager.GlobalCache.Get (url);
 // ...
 
 CacheManager.GlobalCache.Remove (url);
+
+```
+
+### Image cache MonoCache.IOS & MonoCache.Android
+
+```CS
+
+UIImageView OR ImageView imageCtrl = ...
+
+imageCtrl.SetCacheImageWithURL (url, (HttpWebResponse r, UIImage OR Bitmap i, Exception e) => {
+  if (null != e) { System.Console.Write (e.Message); }
+});
 
 ```

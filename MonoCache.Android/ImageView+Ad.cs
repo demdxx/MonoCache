@@ -19,17 +19,18 @@ namespace MonoCache.Android
      * Load or read image from cache
      * @param image this
      * @param url
-     * @param cache
      * @param callback
      * @param format
      * @param placeholderImage
      * @param errorImage
      * @param ignoreSSL
+     * @param cache
      */
-    public static async void SetCacheImageWithURL (this ImageView image, string url, ICache cache = null,
+    public static async void SetCacheImageWithURL (this ImageView image, string url,
                                                    Action<HttpWebResponse, Bitmap, Exception> callback = null,
                                                    Bitmap.CompressFormat format = null,
-                                                   Bitmap placeholderImage = null, Bitmap errorImage = null, bool ignoreSSL = false)
+                                                   Bitmap placeholderImage = null, Bitmap errorImage = null,
+                                                   bool ignoreSSL = false, ICache cache = null)
     {
       if (null == cache) {
         cache = AndroidCacheManager.GlobalCache;
