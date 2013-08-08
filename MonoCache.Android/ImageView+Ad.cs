@@ -53,6 +53,41 @@ namespace MonoCache.Android
     }
 
     /**
+     * Get file with url
+     * @param url
+     * @param callback
+     * @param ignoreSSL
+     */
+    public static void GetFileWithURL(string url, Action<HttpWebResponse, Exception> callback, bool ignoreSSL = false)
+    {
+      HttpWebRequest request = HttpWebRequest.Create (url) as HttpWebRequest;
+      request.Method = "GET";
+      request.Accept = "image/*";
+
+      // Trust for all servers
+      if (ignoreSSL) {
+        ServicePointManager.ServerCertificateValidationCallback = (sender, cert, chain, ssl) =>  true;
+      } else {
+        ServicePointManager.ServerCertificateValidationCallback = null;
+      }
+
+      // Start request
+      request.BeginGetResponse ((IAsyncResult result) => {
+        try {
+          // Callback
+          if (null != callback) {
+            var response = request.EndGetResponse (result) as HttpWebResponse;
+            callback (response, null);
+          }
+        } catch (Exception e) {
+          if (null != callback) {
+            callback (null, e);
+          }
+        }
+      }, null);
+    }
+
+    /**
      * Load image from url without caching
      * @param image this
      * @param url
@@ -69,46 +104,30 @@ namespace MonoCache.Android
         image.SetImageBitmap (placeholderImage);
       }
 
-      HttpWebRequest request = HttpWebRequest.Create (url) as HttpWebRequest;
-      request.Method = "GET";
-      request.Accept = "image/*";
-
-      // Trust for all servers
-      if (ignoreSSL) {
-        ServicePointManager.ServerCertificateValidationCallback = (sender, cert, chain, ssl) =>  true;
-      } else {
-        ServicePointManager.ServerCertificateValidationCallback = null;
-      }
-
-      // Start request
-      request.BeginGetResponse ((IAsyncResult result) => {
-        try {
-          Bitmap i = null;
-          var response = request.EndGetResponse (result) as HttpWebResponse;
-          if (HttpStatusCode.OK == response.StatusCode) {
-            using (BinaryReader br = new BinaryReader (response.GetResponseStream ())) {
-              byte[] arr = br.ReadBytes ((int) response.ContentLength);
-              i = BitmapFactory.DecodeByteArray (arr, 0, arr.Length);
+      GetFileWithURL(url, (HttpWebResponse response, Exception e) => {
+        if (null != callback) {
+          if (null != e) {
+            callback (response, null, e);
+          } else {
+            Bitmap i = null;
+            if (HttpStatusCode.OK == response.StatusCode) {
+              using (BinaryReader br = new BinaryReader (response.GetResponseStream ())) {
+                byte[] arr = br.ReadBytes ((int) response.ContentLength);
+                i = BitmapFactory.DecodeByteArray (arr, 0, arr.Length);
+              }
             }
-          }
 
-          if (null != i) {
-            image.SetImageBitmap (i);
-          } else if (null != errorImage) {
-            image.SetImageBitmap (errorImage);
-          }
+            if (null != i) {
+              image.SetImageBitmap (i);
+            } else if (null != errorImage) {
+              image.SetImageBitmap (errorImage);
+            }
 
-          // Callback
-          if (null != callback) {
+            // Callback
             callback (response, i, null);
           }
-        } catch (Exception e) {
-          if (null != errorImage) {
-            image.SetImageBitmap (errorImage);
-          }
-          callback (null, null, e);
         }
-      }, null);
+      }, ignoreSSL);
 
       return image;
     }

@@ -68,11 +68,23 @@ namespace MonoCache.IOS
 
     #region Helpers
 
+    public static void ReadBytes (this NSData data, byte[] bytes, int start = 0)
+    {
+      System.Runtime.InteropServices.Marshal.Copy (data.Bytes, bytes, start, Convert.ToInt32 (bytes.Length));
+    }
+
     public static byte[] ToByteArray (this NSData data)
     {
       var dataBytes = new byte [data.Length];
-      System.Runtime.InteropServices.Marshal.Copy (data.Bytes, dataBytes, 0, Convert.ToInt32 (data.Length));
+      data.ReadBytes (dataBytes, 0);
       return dataBytes;
+    }
+
+    public static byte GetByte (this NSData data, int index)
+    {
+      byte[] bytes = new byte[1];
+      System.Runtime.InteropServices.Marshal.Copy (data.Bytes, bytes, index, 1);
+      return bytes [0];
     }
 
     #endregion // Helpers

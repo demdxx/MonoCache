@@ -26,9 +26,12 @@
  * SOFTWARE.
  */
 using System;
+using System.Collections.Generic;
 
 using MonoTouch.UIKit;
 using MonoTouch.Foundation;
+using MonoTouch.ImageIO;
+using MonoTouch.CoreGraphics;
 
 namespace MonoCache.IOS
 {
@@ -43,9 +46,69 @@ namespace MonoCache.IOS
      * @param cache
      * @return surcess state
      */
-    public static bool ToCache (this UIImage image, string key, bool rewrite = false, bool checkExpired = true, ICache cache = null)
+    public static bool ToCache (this UIImage image, string key, bool rewrite = false,
+                                bool checkExpired = true, ICache cache = null, bool asPNG = false)
     {
+      if (asPNG) {
+        return image.AsPNG ().ToCache (key, rewrite, checkExpired, cache);
+      }
       return image.AsJPEG ().ToCache (key, rewrite, checkExpired, cache);
+    }
+
+    /**
+     * Get GIF from NSData
+     * @param data
+     * @return Animated Image
+     */
+    public static UIImage GifFromData(NSData data)
+    {
+      CGImageSource source = CGImageSource.FromData (data);
+
+      var properties = source.CopyProperties (new CGImageOptions());
+      var gifProperties = properties.ObjectForKey (MonoTouch.ImageIO.CGImageProperties.GIFDictionary);
+
+      var count = source.ImageCount;
+      var images = new List<UIImage> ();
+
+      for (var i = 0; i < count; i++) {
+        var image = source.CreateImage (i, null);
+        images.Add (UIImage.FromImage (image));
+      }
+
+      double duration = Convert.ToDouble (gifProperties.ValueForKey (MonoTouch.ImageIO.CGImageProperties.GIFDelayTime));
+      if (duration <= 0.0f) {
+        duration = (1.0f / 10.0f) * count;
+      }
+
+      return UIImage.CreateAnimatedImage (images.ToArray (), duration);
+    }
+
+    /**
+     * Get UIImage from byte buffer
+     * @param buff
+     * @return UIImage instance
+     */
+    public static UIImage FromBytes (byte[] buff)
+    {
+      if (0x47 == buff [0]) {
+        // Is GIF image
+        return GifFromData (NSData.FromArray (buff));
+      }
+      return UIImage.LoadFromData (NSData.FromArray (buff));
+    }
+
+    /**
+     * Get UIImage from NSData buffer
+     * @param buff
+     * @return UIImage instance
+     */
+    public static UIImage FromData (NSData data)
+    {
+      if (0x47 == data.GetByte (0)) {
+        // Is GIF image
+        return GifFromData (data);
+      }
+      return UIImage.LoadFromData (data);
     }
 
     /**
@@ -58,7 +121,7 @@ namespace MonoCache.IOS
     public static UIImage FromCache (string key, bool checkExpired = true, ICache cache = null)
     {
       NSData data = NSData_MonoCache.FromCache (key, checkExpired, cache);
-      return null != data ? UIImage.LoadFromData (data) : null;
+      return null != data ? FromData (data) : null;
     }
   }
 }

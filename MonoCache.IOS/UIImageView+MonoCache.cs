@@ -35,7 +35,6 @@ using MonoTouch.UIKit;
 using MonoTouch.Foundation;
 
 using MonoCache;
-using MonoCache.IOS;
 
 namespace MonoCache.IOS
 {
@@ -45,7 +44,7 @@ namespace MonoCache.IOS
                                                    UIImage placeholderImage = null, UIImage errorImage = null, bool ignoreSSL = false, ICache cache = null)
     {
       // Get image from cache
-      UIImage image = UIImage_MonoCache.FromCache (url);
+      UIImage image = UIImage_MonoCache.FromCache (url, true, cache);
 
       if (null != image) {
         // Set image from cache
@@ -57,24 +56,26 @@ namespace MonoCache.IOS
         }
         return img;
       }
-      return SetImageWithURL (img, url, (HttpWebResponse response, UIImage i, Exception e) => {
-        if (null != i) {
-          i.ToCache (url, true);
+
+      return SetImageWithURL (img, url, (HttpWebResponse response, NSData data, UIImage i, Exception e) => {
+        if (null != data) {
+          data.ToCache (url, true, false, cache);
         }
         if (null != callback) {
           callback (response, i, e);
         }
       }, placeholderImage, errorImage, ignoreSSL);
     }
+    
 
-
-    public static UIImageView SetImageWithURL(this UIImageView img, string url, Action<HttpWebResponse, UIImage, Exception> callback,
-                                              UIImage placeholderImage = null, UIImage errorImage = null, bool ignoreSSL = false)
+    /**
+     * Get file with url
+     * @param url
+     * @param callback
+     * @param ignoreSSL
+     */
+    public static void GetFileWithURL(string url, Action<HttpWebResponse, Exception> callback, bool ignoreSSL = false)
     {
-      if (null != placeholderImage) {
-        img.Image = placeholderImage;
-      }
-
       HttpWebRequest request = HttpWebRequest.Create (url) as HttpWebRequest;
       request.Method = "GET";
       request.Accept = "image/*";
@@ -89,36 +90,76 @@ namespace MonoCache.IOS
       // Start request
       request.BeginGetResponse ((IAsyncResult result) => {
         try {
-          UIImage i = null;
-          var response = request.EndGetResponse (result) as HttpWebResponse;
-          if (HttpStatusCode.OK == response.StatusCode) {
-            using (BinaryReader br = new BinaryReader (response.GetResponseStream ())) {
-              byte[] arr = br.ReadBytes ((int) response.ContentLength);
-              i = UIImage.LoadFromData (NSData.FromArray (arr));
-            }
+          // Callback
+          if (null != callback) {
+            var response = request.EndGetResponse (result) as HttpWebResponse;
+            callback (response, null);
           }
-
-          NSThread.MainThread.BeginInvokeOnMainThread (() => {
-            if (null != i) {
-              img.Image = i;
-            } else if (null != errorImage) {
-              img.Image = errorImage;
-            }
-
-            // Callback
-            if (null != callback) {
-              callback (response, i, null);
-            }
-          });
         } catch (Exception e) {
+          if (null != callback) {
+            callback (null, e);
+          }
+        }
+      }, null);
+    }
+
+    /**
+     * Load image from url
+     * @param this UIImageView
+     * @param url
+     * @param callback
+     * @param placeholderImage
+     * @param errorImage
+     * @param ignoreSSL
+     * @return self
+     */
+    public static UIImageView SetImageWithURL(this UIImageView img, string url, Action<HttpWebResponse, NSData, UIImage, Exception> callback,
+                                              UIImage placeholderImage = null, UIImage errorImage = null, bool ignoreSSL = false)
+    {
+      if (null != placeholderImage) {
+        img.Image = placeholderImage;
+      }
+
+      GetFileWithURL (url, (HttpWebResponse response, Exception e) => {
+        if (null == e) {
+          try {
+            UIImage i = null;
+            NSData data = null;
+            if (HttpStatusCode.OK == response.StatusCode) {
+              using (BinaryReader br = new BinaryReader (response.GetResponseStream ())) {
+                byte[] arr = br.ReadBytes ((int) response.ContentLength);
+                data = NSData.FromArray (arr);
+                i = UIImage_MonoCache.FromData (data);
+              }
+            }
+
+            NSThread.MainThread.BeginInvokeOnMainThread (() => {
+              if (null != i) {
+                img.Image = i;
+              } else if (null != errorImage) {
+                img.Image = errorImage;
+              }
+
+              // Callback
+              if (null != callback) {
+                callback (response, data, i, null);
+              }
+            });
+          } catch (Exception ex) {
+            e = ex;
+          }
+        }
+        if (null != e) {
           NSThread.MainThread.BeginInvokeOnMainThread (() => {
             if (null != errorImage) {
               img.Image = errorImage;
             }
-            callback (null, null, e);
+            if (null != callback) {
+              callback (null, null, null, e);
+            }
           });
         }
-      }, null);
+      }, ignoreSSL);
 
       return img;
     }
