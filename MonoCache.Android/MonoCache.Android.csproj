@@ -45,7 +45,7 @@
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="AndroidCacheManager.cs" />
     <Compile Include="Bitmap+MonoCache.cs" />
-    <Compile Include="ImageView+Ad.cs" />
+    <Compile Include="ImageView+MonoCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

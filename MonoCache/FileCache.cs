@@ -159,6 +159,25 @@ namespace MonoCache
     }
 
     /**
+     * Get address by key
+     * @param key
+     * @param checkExpired Check the end of the lifetime of
+     * @return object
+     */
+    public override string GetAddress(string key, bool checkExpired = true)
+    {
+      string filePath = FilePath (key);
+      if (!File.Exists (filePath)) {
+        return null;
+      }
+      if (checkExpired && IsExpired (File.GetLastWriteTimeUtc (filePath))) {
+        File.Delete (filePath);
+        return null;
+      }
+      return filePath;
+    }
+
+    /**
      * Remove value by key
      * @[aram key
      */

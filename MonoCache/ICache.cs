@@ -60,6 +60,14 @@ namespace MonoCache
     object Get(string key, bool checkExpired = true);
 
     /**
+     * Get address by key
+     * @param key
+     * @param checkExpired Check the end of the lifetime of
+     * @return object
+     */
+    string GetAddress(string key, bool checkExpired = true);
+
+    /**
      * Remove value by key
      * @param key
      */
