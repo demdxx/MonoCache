@@ -33,6 +33,7 @@ using System.IO;
 
 using Android.Widget;
 using Android.Graphics;
+using Android.App;
 
 namespace MonoCache.Android
 {
@@ -62,7 +63,13 @@ namespace MonoCache.Android
       try {
         Bitmap result = Bitmap_MonoCache.FromCache (url, cache: cache);
         if (null != result) {
-          image.SetImageBitmap (result);
+          if (null != image.Context && image.Context is Activity) {
+            ((Activity) image.Context).RunOnUiThread(delegate {
+              image.SetImageBitmap (result);
+            });
+          } else {
+            image.SetImageBitmap (result);
+          }
           if (null != callback) {
             callback (null, result, null);
           }
@@ -138,29 +145,40 @@ namespace MonoCache.Android
       }
 
       GetFileWithURL(url, (HttpWebResponse response, Exception e) => {
-        if (null != callback) {
-          if (null != e) {
+        if (null != e) {
+          if (null != callback) {
             callback (response, null, e);
-          } else {
-            Bitmap i = null;
+          }
+        } else {
+          Bitmap i = null;
+          try {
             if (HttpStatusCode.OK == response.StatusCode) {
               using (var rs = response.GetResponseStream ()) {
                 i = Bitmap_MonoCache.DecodeImageFile (rs, width, height, intelligent);
               }
-//              using (BinaryReader br = new BinaryReader (response.GetResponseStream ())) {
-//                byte[] arr = br.ReadBytes ((int) response.ContentLength);
-//                i = BitmapFactory.DecodeByteArray (arr, 0, arr.Length);
-//              }
             }
 
-            if (null != i) {
+            if (null != image.Context && image.Context is Activity) {
+              ((Activity) image.Context).RunOnUiThread(delegate {
+                if (null != i) {
+                  image.SetImageBitmap (i);
+                } else if (null != errorImage) {
+                  image.SetImageBitmap (errorImage);
+                }
+              });
+            } else if (null != i) {
               image.SetImageBitmap (i);
             } else if (null != errorImage) {
               image.SetImageBitmap (errorImage);
             }
+          } catch (Exception ex) {
+            System.Diagnostics.Debug.Write (String.Format ("SetImageWithURL: {0} {1}", ex.Message, ex.StackTrace));
+            e = ex;
+          }
 
-            // Callback
-            callback (response, i, null);
+          // Callback
+          if (null != callback) {
+            callback (response, i, e);
           }
         }
       }, ignoreSSL);

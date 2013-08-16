@@ -75,7 +75,10 @@ namespace MonoCache.IOS
         images.Add (UIImage.FromImage (image));
       }
 
-      double duration = Convert.ToDouble (gifProperties.ValueForKey (MonoTouch.ImageIO.CGImageProperties.GIFDelayTime));
+      double duration = 0.0f;
+      if (null != gifProperties) {
+        duration = Convert.ToDouble (gifProperties.ValueForKey (MonoTouch.ImageIO.CGImageProperties.GIFDelayTime));
+      }
       if (duration <= 0.0f) {
         duration = (1.0f / 10.0f) * count;
       }
