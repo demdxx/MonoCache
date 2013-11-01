@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG;IO_INTERFACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -51,5 +51,6 @@
     <Compile Include="NSData+MonoCache.cs" />
     <Compile Include="UIImage+MonoCache.cs" />
     <Compile Include="UIImageView+MonoCache.cs" />
+    <Compile Include="IOHelper.cs" />
   </ItemGroup>
 </Project>

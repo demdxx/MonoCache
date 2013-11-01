@@ -37,16 +37,8 @@ namespace MonoCache.Android
     private Context ApplicationContext;
 
     /**
-     * Instnace property of manager
-     */
-    public static AndroidCacheManager Instance {
-      get {
-        return _Instance as AndroidCacheManager;
-      }
-    }
-
-    /**
      * Constructor
+     * @param context android application
      */
     public AndroidCacheManager (Context context) : base ()
     {
@@ -73,15 +65,11 @@ namespace MonoCache.Android
       base.InitGlobalCache (basePath, lifeTime);
     }
 
-    /**
-     * Get global cache interface
-     * @return ICache
-     */
-    public static ICache GlobalCache
+    #if IO_INTERFACE
+    protected override IOInterface GetIOInstace()
     {
-      get {
-        return Instance.GlobalCacheInterface;
-      }
+      return (new IOHelper()) as IOInterface;
     }
+    #endif // IO_INTERFACE
   }
 }

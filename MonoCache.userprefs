@@ -2,19 +2,28 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="MonoCache.ANDROID/AndroidCacheManager.cs">
     <Files>
-      <File FileName="MonoCache/CacheManager.cs" Line="21" Column="48" />
-      <File FileName="MonoCache.ANDROID/AndroidCacheManager.cs" Line="33" Column="4" />
+      <File FileName="MonoCache/CacheBase.cs" Line="33" Column="26" />
+      <File FileName="MonoCache/FileCache.cs" Line="147" Column="8" />
+      <File FileName="MonoCache/CacheManager.cs" Line="53" Column="8" />
+      <File FileName="MonoCache.ANDROID/AndroidCacheManager.cs" Line="37" Column="40" />
+      <File FileName="MonoCache.IOS/IOSCacheManager.cs" Line="34" Column="4" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
+          <Node name="Dependencies" expanded="True" />
           <Node name="MonoCache" expanded="True" />
           <Node name="MonoCache.ANDROID" expanded="True">
-            <Node name="References" selected="True" />
-            <Node name="Resources" expanded="True" />
+            <Node name="AndroidCacheManager.cs" selected="True" />
           </Node>
           <Node name="MonoCache.IOS" expanded="True" />
         </State>
+      </Pad>
+      <Pad Id="ClassPad">
+        <State expanded="True" selected="True" />
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>

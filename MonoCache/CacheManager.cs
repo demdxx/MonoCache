@@ -26,12 +26,19 @@
  * SOFTWARE.
  */
 using System;
-using System.IO;
 using System.Collections.Generic;
+
+#if !IO_INTERFACE
+using System.IO;
+#endif // END IO_INTERFACE
 
 namespace MonoCache
 {
+  #if IO_INTERFACE
+  public abstract class CacheManager
+  #else // IO_INTERFACE
   public class CacheManager
+  #endif // IO_INTERFACE
   {
     /**
      * Scope of caches
@@ -48,14 +55,29 @@ namespace MonoCache
      */
     public static CacheManager _Instance = null;
 
+    #if IO_INTERFACE
+    protected IOInterface _IO = null;
+    protected IOInterface IO
+    {
+      get
+      {
+        _IO = GetIOInstace();
+        if (null == _IO)
+        {
+          throw new Exception("IO interface. Can`t be null!");
+        }
+        return _IO;
+      }
+    }
+
+    protected abstract IOInterface GetIOInstace();
+    #endif // END IO_INTERFACE
+
     /**
      * Instnace property of manager
      */
     public static CacheManager Instance {
       get {
-        if (null != _Instance) {
-          _Instance = new CacheManager ();
-        }
         return _Instance;
       }
     }
@@ -80,7 +102,11 @@ namespace MonoCache
       if (_Caches.ContainsKey (key)) {
         return false;
       }
+      #if IO_INTERFACE
+      _Caches [key] = new FileCache (sector, IO, lifeTime);
+      #else // IO_INTERFACE
       _Caches [key] = new FileCache (sector, lifeTime);
+      #endif // END IO_INTERFACE
       return true;
     }
 
@@ -113,6 +139,22 @@ namespace MonoCache
      * @param basePath Global cache base path
      * @param lifeTime
      */
+    #if IO_INTERFACE
+    public virtual void InitGlobalCache(string basePath = null, long lifeTime = 1000 * 60 * 60 * 24 * 3)
+    {
+      if (null == IO)
+      {
+        throw new ArgumentNullException("io", "IO interface. Can`t be null!");
+      }
+      if (string.IsNullOrEmpty (basePath)) {
+        basePath = IO.PathCombineLocalApplicationData("g.cache");
+      }
+      if (!InitCache ("global", basePath, lifeTime)) {
+        throw new Exception ("Can`t init global cache!");
+      }
+      _GlobalCache = CacheFor ("global");
+    }
+    #else // IO_INTERFACE
     public virtual void InitGlobalCache (string basePath = null, long lifeTime = 1000 * 60 * 60 * 24 * 3)
     {
       if (string.IsNullOrEmpty (basePath)) {
@@ -125,6 +167,7 @@ namespace MonoCache
       }
       _GlobalCache = CacheFor ("global");
     }
+    #endif // IO_INTERFACE
 
     /**
      * Get global cache interface
@@ -148,7 +191,10 @@ namespace MonoCache
     public static ICache GlobalCache
     {
       get {
-        return Instance.GlobalCacheInterface;
+        if (null != _Instance) {
+          return _Instance.GlobalCacheInterface;
+        }
+        return null;
       }
     }
   }

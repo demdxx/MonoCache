@@ -29,7 +29,10 @@
 using System;
 using System.IO;
 using System.Text;
+
+#if !PORTABLE_MD5_LIBRARY
 using System.Security.Cryptography;
+#endif
 
 namespace MonoCache
 {
@@ -158,6 +161,11 @@ namespace MonoCache
 
     protected string StringToMD5(string str)
     {
+#if PORTABLE_MD5_LIBRARY
+      var md5 = new MD5.MD5();
+      md5.Value = str;
+      return md5.FingerPrint;
+#else
       byte[] input = ASCIIEncoding.ASCII.GetBytes (str);
       byte[] output = MD5.Create ().ComputeHash (input);
       StringBuilder sb = new StringBuilder();
@@ -165,6 +173,7 @@ namespace MonoCache
         sb.Append(output[i].ToString("x2"));
       }
       return sb.ToString();
+#endif
     }
 
     #endregion // Helpers

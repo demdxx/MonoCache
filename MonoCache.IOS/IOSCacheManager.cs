@@ -33,23 +33,18 @@ namespace MonoCache.IOS
   public class IOSCacheManager : CacheManager
   {
     /**
-     * Instnace property of manager
-     */
-    public static IOSCacheManager Instance {
-      get {
-        if (null == _Instance) {
-          _Instance = new IOSCacheManager ();
-        }
-        return _Instance as IOSCacheManager;
-      }
-    }
-
-    /**
      * Constructor
      */
     public IOSCacheManager () : base ()
     {
       // ...
+    }
+
+    public static void Init ()
+    {
+      if (null == _Instance) {
+        _Instance = new IOSCacheManager ();
+      }
     }
 
     /**
@@ -66,15 +61,11 @@ namespace MonoCache.IOS
       base.InitGlobalCache (basePath, lifeTime);
     }
 
-    /**
-     * Get global cache interface
-     * @return ICache
-     */
-    public static ICache GlobalCache
+    #if IO_INTERFACE
+    protected override IOInterface GetIOInstace()
     {
-      get {
-        return Instance.GlobalCacheInterface;
-      }
+      return (new IOHelper()) as IOInterface;
     }
+    #endif // IO_INTERFACE
   }
 }
